@@ -7,7 +7,7 @@ import glob, os
 class contentloader:
 
     def __init__(self, mcskin2d):
-        for item in glob.glob("2data\\*.tga"):
+        for item in glob.glob("2data/*.tga"):
             setattr(self, os.path.basename(item).replace(".tga", ''), mcskin2d.pygame.image.load(item).convert_alpha())
 
     def getcontent(self, name):

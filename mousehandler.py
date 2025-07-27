@@ -3,24 +3,22 @@
 
 import pygame
 from pygame.locals import *
-
-import ctypes
+import sys
 
 class mousehandler:
     def __init__(self):
         self.mouserect = pygame.Rect(pygame.mouse.get_pos(), (1, 1))
         self.mouseoffset = [0, 0]
         self.posondisplay = [0, 0]
-        self.pointstruct = POINT()
-        self.pointstructpointer = ctypes.pointer(self.pointstruct)
 
     def update(self): #Yes, it's cheesy.
         self.mouserect.topleft = (pygame.mouse.get_pos()[0] + self.mouseoffset[0], pygame.mouse.get_pos()[1] + self.mouseoffset[1])
         self.updateondisplay()
 
     def updateondisplay(self):
-        ctypes.windll.user32.GetCursorPos(self.pointstructpointer)
-        self.posondisplay = self.pointstruct.x, self.pointstruct.y
+        # Cross-platform implementation using pygame only
+        pos = pygame.mouse.get_pos()
+        self.posondisplay = pos
         
     def getrect(self):
         return self.mouserect
@@ -49,9 +47,6 @@ class mousehandler:
 
 
 
-class POINT(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_long),
-                ("y", ctypes.c_long)]
 
 class cursors:
 

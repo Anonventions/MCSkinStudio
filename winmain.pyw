@@ -4,7 +4,6 @@
 import tkinter.filedialog as filedialog
 
 import pygame
-import pygame._view
 from pygame.locals import *
 pygame.init()
 
@@ -22,6 +21,11 @@ import pixscreener
 import swatch
 from buttonactions import *
 
+# Import modern UI components
+import modern_gui
+import modern_colorpicker
+import modern_features
+
 class mcskin2d():
     def __init__(self):
         self.filedialog = filedialog
@@ -32,17 +36,33 @@ class mcskin2d():
         #Initialize variables
         self.contentloader = contentloader.contentloader(self)
         self.drawboard = drawboard.drawboard((0, 0), self)
-        self.colorselector = colorselector.colorselector((598, 290), self)
+        
+        # Use modern color picker instead of old one
+        self.modern_colorpicker = modern_colorpicker.ModernColorPicker((550, 50), self)
+        self.colorselector = colorselector.colorselector((598, 290), self)  # Keep as backup
+        
         self.inputengine = inputengine.inputengine()
         self.messhandler = messhandler.messhandler(self)
         self.mousehandler = mousehandler.mousehandler()
         self.fontrenderer = fontrenderer.fontrenderer("MC", self)
         self.skinpreview = skinpreview.skinpreview((640, 0), self)
-        self.colorshower = colorshower.colorshower((10, 330), self)
+        
+        # Use modern color display
+        self.modern_colorshow = modern_gui.ModernColorDisplay((10, 350), self, (80, 80))
+        self.colorshower = colorshower.colorshower((10, 330), self)  # Keep as backup
+        
         self.pixscreener = pixscreener.pixscreener()
         self.swatchpanel = swatch.swatches((220, 325), self)
 
-        #Initialize gui stuff
+        #Initialize modern gui elements
+        self.modern_buttons = []
+        self.modern_buttons.append(modern_gui.ModernButton("Save", SAVESKIN, (9, 450), self, width=80))
+        self.modern_buttons.append(modern_gui.ModernButton("Undo", UNDO, (95, 450), self, width=60))
+        self.modern_buttons.append(modern_gui.ModernButton("Redo", REDO, (160, 450), self, width=60))
+        self.modern_buttons.append(modern_gui.ModernButton("Help", GETHELP, (225, 450), self, width=60))
+        self.modern_buttons.append(modern_gui.ModernButton("Save Model", SAVEMODEL, (640, 350), self, width=100))
+        
+        # Initialize traditional gui stuff (kept for compatibility)
         self.guibuffer = []
         self.guibuffer.append(gui.button(" Save", SAVESKIN, (9, 471), self))
         self.guibuffer.append(gui.button(" Undo", UNDO, (70, 471), self))
@@ -53,7 +73,20 @@ class mcskin2d():
         self.guibuffer.append(gui.button(" -> ", SHIFTRIGHT, (763, 290), self))
         self.guibuffer.append(gui.button(" <- ", SHIFTLEFT, (642, 290), self))
 
+        # Modern RGB/HSV sliders
+        self.modern_sliders = {}
+        self.modern_sliders['r'] = modern_gui.ModernSlider("Red", 200, (300, 400), self, 0, 255)
+        self.modern_sliders['g'] = modern_gui.ModernSlider("Green", 200, (300, 430), self, 0, 255)
+        self.modern_sliders['b'] = modern_gui.ModernSlider("Blue", 200, (300, 460), self, 0, 255)
+        
+        # Additional modern features
+        self.keyboard_shortcuts = modern_features.KeyboardShortcutsPanel((600, 50), self)
+        self.status_bar = modern_features.StatusBar((0, 475), self, 800)
+        self.tool_palette = modern_features.ModernToolPalette((10, 50), self)
+        self.file_panel = modern_features.ModernFilePanel((10, 200), self)
+        self.current_tool = "Brush"
 
+        # Keep original sliders for compatibility
         self.rgbbuffer = {}
         self.rgbbuffer['r'] = gui.slider("                               R", 255, (220, 420), self)
         self.rgbbuffer['g'] = gui.slider("                               G", 255, (220, 445), self)
@@ -65,38 +98,54 @@ class mcskin2d():
 
 
         #Flip screen to start all changes
-        self.tv.fill((240, 240, 240))
+        self.tv.fill((45, 45, 45))  # Modern dark background instead of light gray
         pygame.display.flip()
 
-        pygame.display.set_caption("MCSkinStudio")
+        pygame.display.set_caption("MCSkinStudio - Modern Edition")
         pygame.display.set_icon(self.contentloader.steveico)
         self.mousehandler.changecursor(mousehandler.cursors.regmouse)
 
     def mainloop(self):
         while 1:
-            #Render stuff
-            self.tv.fill((240, 240, 240))
+            #Render stuff with modern dark theme
+            self.tv.fill((45, 45, 45))  # Modern dark background
     
-            #RENDER CODE
+            #RENDER CODE - Modern UI with fallback to classic
             self.messhandler.registermesses([
-
                 self.tv.blit(self.contentloader.mcwood, (0, 320)),
-                self.tv.blit(self.colorselector.getsurface(), self.colorselector.getpos()),
-                self.tv.blit(self.colorshower.getsurface(), self.colorshower.getpos()),
+                # Render modern color picker
+                self.tv.blit(self.modern_colorpicker.getsurface(), self.modern_colorpicker.getpos()),
+                # Render modern color display
+                self.tv.blit(self.modern_colorshow.getsurface(), self.modern_colorshow.getpos()),
+                # Keep classic elements for compatibility
                 self.tv.blit(self.contentloader.TranspImage, self.drawboard.getpos()),
                 self.tv.blit(self.drawboard.getgriddedsurface(), self.drawboard.getpos()),
                 self.tv.blit(self.contentloader.mcmelon, self.skinpreview.getpos()),
                 self.tv.blit(self.skinpreview.getsurface(), self.skinpreview.getpos()),
                 self.tv.blit(self.swatchpanel.getsurface(), self.swatchpanel.getpos())
-
             ])
 
-            #GUI RENDER CODE
-            for element in self.guibuffer:
-                self.messhandler.registermess(self.tv.blit(element.getsurface(), element.getpos()))
+            # Render modern buttons
+            for button in self.modern_buttons:
+                self.messhandler.registermess(self.tv.blit(button.getsurface(), button.getpos()))
 
-            for element in self.rgbbuffer:
-                self.messhandler.registermess(self.tv.blit(self.rgbbuffer[element].getsurface(), self.rgbbuffer[element].getpos()))
+            # Render modern sliders
+            for slider_key in self.modern_sliders:
+                slider = self.modern_sliders[slider_key]
+                self.messhandler.registermess(self.tv.blit(slider.getsurface(), slider.getpos()))
+            
+            # Render modern features
+            self.messhandler.registermess(self.tv.blit(self.tool_palette.getsurface(), self.tool_palette.getpos()))
+            self.messhandler.registermess(self.tv.blit(self.file_panel.getsurface(), self.file_panel.getpos()))
+            self.messhandler.registermess(self.tv.blit(self.keyboard_shortcuts.getsurface(), self.keyboard_shortcuts.getpos()))
+            self.messhandler.registermess(self.tv.blit(self.status_bar.getsurface(self.drawboard.color, self.current_tool), self.status_bar.getpos()))
+
+            # Keep classic GUI elements hidden for now (for compatibility)
+            # for element in self.guibuffer:
+            #     self.messhandler.registermess(self.tv.blit(element.getsurface(), element.getpos()))
+
+            # for element in self.rgbbuffer:
+            #     self.messhandler.registermess(self.tv.blit(self.rgbbuffer[element].getsurface(), self.rgbbuffer[element].getpos()))
 
             
 
@@ -109,15 +158,59 @@ class mcskin2d():
             self.inputengine.killifrequest()
 
             self.drawboard.draw()
-            self.colorshower.update()
+            
+            # Update modern UI components
+            # Update modern color picker
+            if self.modern_colorpicker.update():
+                new_rgb = self.modern_colorpicker.get_rgb()
+                self.drawboard.color = new_rgb
+                # Sync with modern sliders
+                self.modern_sliders['r'].set_value(new_rgb[0])
+                self.modern_sliders['g'].set_value(new_rgb[1])
+                self.modern_sliders['b'].set_value(new_rgb[2])
+            
+            # Update modern color display
+            self.modern_colorshow.update(self.drawboard.color)
 
             self.skinpreview.update()
-
             self.swatchpanel.update()
 
-            newcol = self.colorselector.getcol()
-            if newcol: self.drawboard.color = list(newcol)
+            # Update modern buttons
+            for button in self.modern_buttons:
+                button.update()
+            
+            # Update modern features
+            if self.tool_palette.update():
+                self.current_tool = self.tool_palette.get_selected_tool()
+            
+            self.file_panel.update()
+            
+            # Update modern sliders
+            for slider_key in self.modern_sliders:
+                slider = self.modern_sliders[slider_key]
+                if slider.update():
+                    # Update drawboard color when sliders change
+                    if slider_key == 'r':
+                        self.drawboard.color[0] = slider.get_value()
+                    elif slider_key == 'g':
+                        self.drawboard.color[1] = slider.get_value()
+                    elif slider_key == 'b':
+                        self.drawboard.color[2] = slider.get_value()
+                    
+                    # Update modern color picker when sliders change
+                    self.modern_colorpicker.set_rgb(self.drawboard.color)
 
+            # Keep legacy color selector for compatibility with classic mode
+            newcol = self.colorselector.getcol()
+            if newcol: 
+                self.drawboard.color = list(newcol)
+                # Sync with modern components
+                self.modern_colorpicker.set_rgb(self.drawboard.color)
+                self.modern_sliders['r'].set_value(self.drawboard.color[0])
+                self.modern_sliders['g'].set_value(self.drawboard.color[1])
+                self.modern_sliders['b'].set_value(self.drawboard.color[2])
+
+            # Keep classic GUI update for compatibility (hidden)
             for element in self.guibuffer: #GUI UPDATE
                 element.update()
 
@@ -135,6 +228,30 @@ class mcskin2d():
                         self.drawboard.color[2] = self.rgbbuffer[element].getvalue()
                         self.rgbbuffer[element + 'e'].setvalue(self.rgbbuffer[element].getvalue())
 
+            # Modern keyboard shortcuts
+            keys_pressed = pygame.key.get_pressed()
+            
+            # F1 - Toggle help/shortcuts
+            if self.inputengine.keypushed(K_F1):
+                self.keyboard_shortcuts.toggle_visibility()
+            
+            # Ctrl+S - Save
+            if keys_pressed[K_LCTRL] and self.inputengine.keypushed(K_s):
+                self.file_panel._save_skin()
+            
+            # Ctrl+O - Open
+            if keys_pressed[K_LCTRL] and self.inputengine.keypushed(K_o):
+                self.file_panel._open_skin()
+            
+            # Ctrl+Z - Undo (if implemented)
+            if keys_pressed[K_LCTRL] and self.inputengine.keypushed(K_z):
+                try:
+                    for line in UNDO:
+                        exec(line)
+                except:
+                    pass
+            
+            # Legacy keyboard shortcuts
             if self.inputengine.charpushed(chr(19)):
                 #Save image
                 try:

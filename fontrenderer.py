@@ -5,9 +5,9 @@
 class fontrenderer:
     def __init__(self, font, mcskin2d):
         self.mcskin2d = mcskin2d
-        self.fontsmall = mcskin2d.pygame.font.Font("2data\\" + font + ".otf", 16)
-        self.font = mcskin2d.pygame.font.Font("2data\\" + font + ".otf", 25)
-        self.fontbig = mcskin2d.pygame.font.Font("2data\\" + font + ".otf", 40)
+        self.fontsmall = mcskin2d.pygame.font.Font("2data/" + font + ".otf", 16)
+        self.font = mcskin2d.pygame.font.Font("2data/" + font + ".otf", 25)
+        self.fontbig = mcskin2d.pygame.font.Font("2data/" + font + ".otf", 40)
 
     def rendersmall(self, text, antialias=False, color=(0, 0, 0), dest=None, destpos=None):
         if dest == None: return self.fontsmall.render(text, antialias, color)
