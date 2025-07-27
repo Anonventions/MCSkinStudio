@@ -4,7 +4,6 @@
 import tkinter.filedialog as filedialog
 
 import pygame
-import pygame._view
 from pygame.locals import *
 pygame.init()
 
